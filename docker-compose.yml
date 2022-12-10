@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base
+    container_name: express
+    environment: 
+      - MONGODB_CONNSTRING=mongodb://AzureDiamond:hunter2@mongodb
+    ports:
+      - '3001:3001'
+    command: npm run dev
+  mongodb:
+    image: mongo:5.0
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=AzureDiamond
+      - MONGO_INITDB_ROOT_PASSWORD=hunter2
+    ports:
+      - '27017:27017'

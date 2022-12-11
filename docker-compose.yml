@@ -15,7 +15,7 @@ services:
       - ./:/app
     command: npm run dev
   mongodb:
-    image: mongo:5.0
+    image: mongo
     volumes: 
       - transcribe-mongo-data:/data/db
     environment:

@@ -16,8 +16,12 @@ services:
     command: npm run dev
   mongodb:
     image: mongo:5.0
+    volumes: 
+      - transcribe-mongo-data:/data/db
     environment:
       - MONGO_INITDB_ROOT_USERNAME=AzureDiamond
       - MONGO_INITDB_ROOT_PASSWORD=hunter2
     ports:
       - '27017:27017'
+volumes:
+  transcribe-mongo-data:

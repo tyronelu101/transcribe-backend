@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { Error } from "mongoose";
 
 const express = require('express')
 const cors = require('cors')
@@ -10,12 +11,12 @@ app.use(express.json({ limit: '10MB' }));
 const Tab = require('./models/tab')
 
 app.get('/api/tabs/', (request: Request, response: Response) => {
-  Tab.find({}).then((tabs: any) => {
+  Tab.find({}).then((tabs: ResponseTab[]) => {
     response.json(tabs)
   })
 })
 
-app.get('/api/tabs/:id', (request: Request, response: Response, next) => {
+app.get('/api/tabs/:id', (request: Request, response: Response, next: NextFunction) => {
   Tab.findById(request.params.id)
     .then(tab => {
       if (tab) {
@@ -24,16 +25,16 @@ app.get('/api/tabs/:id', (request: Request, response: Response, next) => {
         response.status(404).end()
       }
     })
-    .catch(error => next(error))
+    .catch((error: Error) => next(error))
 })
 
 
 app.delete('/api/tabs/:id', (request: Request, response: Response, next: NextFunction) => {
   Tab.findByIdAndRemove(request.params.id)
-    .then(result => {
+    .then(tab => {
       response.status(204).end()
     })
-    .catch(error => next(error))
+    .catch((error: Error) => next(error))
 })
 
 app.post('/api/tabs', (request: Request, response: Response) => {
@@ -65,17 +66,17 @@ app.put('/api/tabs/:id', (request: Request, response: Response, next: NextFuncti
     .then(updatedTab => {
       response.json(updatedTab)
     })
-    .catch(error => next(error))
+    .catch((error: Error) => next(error))
 
 })
 
-const unknownEndpoint = (request, response) => {
+const unknownEndpoint = (request: Request, response: Response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
 
 app.use(unknownEndpoint)
 
-const errorHandler = (error, request, response, next) => {
+const errorHandler = (error: Error, request: Request, response: Response, next: NextFunction) => {
   console.log(error.message);
 
   if (error.name === 'CastError') {

@@ -11,7 +11,7 @@ app.use(express.json({ limit: '10MB' }));
 const Tab = require('./models/tab')
 
 app.get('/api/tabs/', (request: Request, response: Response) => {
-  Tab.find({}).then((tabs: ResponseTab[]) => {
+  Tab.find({}).then((tabs) => {
     response.json(tabs)
   })
 })

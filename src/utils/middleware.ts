@@ -10,11 +10,11 @@ const requestLogger = (request: Request, response: Response, next: NextFunction)
     next()
 }
 
-const unknownEndpoint = (request, response) => {
+const unknownEndpoint = (request: Request, response: Response) => {
     response.status(404).send({ error: 'unkown endpoint' })
 }
 
-const errorHandler = (error, request, response, next) => {
+const errorHandler = (error: Error, request: Request, response: Response, next: NextFunction) => {
     logger.error(error.message)
 
     if (error.name === 'CastError') {

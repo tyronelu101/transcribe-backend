@@ -1,12 +1,4 @@
 const mongoose = require('mongoose')
-const url = process.env.MONGODB_CONNSTRING
-
-mongoose.connect(url).then((result: any) => {
-    console.log('conncted to MongoDB')
-}).catch((error) => {
-    console.log("Error connecting to MongoDB", error.message);
-
-})
 
 const tabSchema = new mongoose.Schema({
     title: String,

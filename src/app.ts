@@ -9,13 +9,12 @@ const tabRouter = require('./controllers/tab')
 const middleware = require('./utils/middleware')
 const logger = require('./utils/logger')
 const mongoose = require('mongoose')
-console.log("CONFIG IS", config);
 
-logger.info('connectings to', config.MONGODB_URI)
+logger.info('connecting to', config.MONGODB_URI)
 
 mongoose.connect(config.MONGODB_URI)
   .then((result: any) => {
-    logger.info('conncted to MongoDB')
+    logger.info('connected to MongoDB')
   }).catch((error: Error) => {
     logger.error("Error connecting to MongoDB", error.message);
   })

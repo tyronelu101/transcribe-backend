@@ -13,6 +13,8 @@ tabRouter.get('/:id', async (request: Request, response: Response, next: NextFun
             .findById(request.params.id)
         if (tab) {
             response.json(tab)
+        } else {
+            response.status(404).end()
         }
     } catch (exception) {
         next(exception)
@@ -54,7 +56,7 @@ tabRouter.put('/:id', async (request: Request, response: Response, next: NextFun
             response.json(updatedTab)
         }
     } catch (exception) {
-        next(error)
+        next(exception)
     }
 })
 

@@ -31,7 +31,7 @@ tabRouter.post('/', async (request: Request, response: Response) => {
     })
 
     const savedTab = await tab.save()
-    response.json(savedTab)
+    response.status(201).json(savedTab)
 
 })
 

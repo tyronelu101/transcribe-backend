@@ -6,17 +6,13 @@ const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 const TabMongoose = require('../models/tab')
-
-const initialTabs = [
-    { title: 'Title1', artist: 'Artist1', arranger: 'Arranger1', dateCreated: new Date(), dateModified: new Date(), content: [] },
-    { title: 'Title2', artist: 'Artist2', arranger: 'Arranger2', dateCreated: new Date(), dateModified: new Date(), content: [] }
-]
+const helper = require('./test-helper')
 
 beforeEach(async () => {
     await TabMongoose.deleteMany({})
-    let noteObject = new TabMongoose(initialTabs[0])
+    let noteObject = new TabMongoose(helper.initialTabs[0])
     await noteObject.save()
-    noteObject = new TabMongoose(initialTabs[1])
+    noteObject = new TabMongoose(helper.initialTabs[1])
     await noteObject.save()
 })
 
@@ -29,7 +25,7 @@ test('tabs are returned as json', async () => {
 
 test('all tabs are returned', async () => {
     const response = await api.get('/api/tabs')
-    expect(response.body).toHaveLength(initialTabs.length)
+    expect(response.body).toHaveLength(helper.initialTabs.length)
 })
 
 test('a specific tab is within the returned tabs', async () => {
@@ -54,11 +50,11 @@ test('a valid tab can be added', async () => {
         .expect(201)
         .expect('Content-Type', /application\/json/)
 
-    const response = await api.get('/api/tabs')
-    const contents = response.body.map((tab: Tab) => tab.title)
+    const tabs = await helper.tabsInDb()
+    expect(tabs).toHaveLength(helper.initialTabs.length + 1)
 
-    expect(response.body).toHaveLength(initialTabs.length + 1)
-    expect(contents).toContain('New Title1')
+    const tabTitles = tabs.map((tab: Tab) => tab.title)
+    expect(tabTitles).toContain('New Title1')
 
 })
 
@@ -76,9 +72,9 @@ test('a tab without title can not be added', async () => {
         .send(newTab)
         .expect(400)
 
-    const response = await api.get('/api/tabs')
+    const tabs = await helper.tabsInDb()
 
-    expect(response.body).toHaveLength(initialTabs.length)
+    expect(tabs).toHaveLength(helper.initialTabs.length)
 })
 
 afterAll(() => {

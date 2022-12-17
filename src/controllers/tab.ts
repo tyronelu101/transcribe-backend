@@ -3,25 +3,22 @@ import { Tab } from "../types/tab-type"
 const tabRouter = require('express').Router()
 const TabMongoose = require('../models/tab')
 
-tabRouter.get('/', (request: Request, response: Response) => {
-    TabMongoose.find({}).then((tabs: Tab) => {
-        response.json(tabs)
-    })
+tabRouter.get('/', async (request: Request, response: Response) => {
+    const tabs = await TabMongoose.find({})
+    response.json(tabs)
 })
 
-tabRouter.get('/:id', (request: Request, response: Response, next: NextFunction) => {
-    TabMongoose.findById(request.params.id)
-        .then((tab: Tab) => {
-            if (tab) {
-                response.json(tab)
-            } else {
-                response.status(404).end()
-            }
-        })
+tabRouter.get('/:id', async (request: Request, response: Response, next: NextFunction) => {
+    const tab = await TabMongoose
+        .findBy(request.params.id)
         .catch((error: Error) => next(error))
+
+    if (tab) {
+        response.json(tab)
+    }
 })
 
-tabRouter.post('/', (request: Request, response: Response) => {
+tabRouter.post('/', async (request: Request, response: Response) => {
     const body = request.body
     if (!body.title) {
         return response.status(400).json({
@@ -33,25 +30,25 @@ tabRouter.post('/', (request: Request, response: Response) => {
         ...body
     })
 
-    tab.save().then((savedTab: any) => {
-        response.json(savedTab)
-    })
+    const savedTab = await tab.save()
+    response.json(savedTab)
 
 })
 
-tabRouter.put('/:id', (request: Request, response: Response, next: NextFunction) => {
+tabRouter.put('/:id', async (request: Request, response: Response, next: NextFunction) => {
     const body = request.body
 
     const tab = {
         ...body
     }
 
-    TabMongoose.findByIdAndUpdate(request.params.id, tab, { new: true })
-        .then((tab: Tab) => {
-            response.json(tab)
-        })
+    const updatedTab = await TabMongoose
+        .findByIdAndUpdate(request.params.id, tab, { new: true })
         .catch((error: Error) => next(error))
+    if (updatedTab) {
+        response.json(updatedTab)
 
+    }
 })
 
 tabRouter.delete('/:id', (request: Request, response: Response, next: NextFunction) => {

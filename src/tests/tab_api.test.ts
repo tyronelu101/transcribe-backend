@@ -1,4 +1,4 @@
-import { test, afterAll, beforeEach, expect } from "@jest/globals"
+import { test, afterAll, beforeEach, expect, jest } from "@jest/globals"
 import { Tab } from "../types/tab-type"
 
 const mongoose = require('mongoose')
@@ -75,6 +75,36 @@ test('a tab without title can not be added', async () => {
     const tabs = await helper.tabsInDb()
 
     expect(tabs).toHaveLength(helper.initialTabs.length)
+})
+
+test('a specific tab can be viewed', async () => {
+    const tabsAtStart = await helper.tabsInDb()
+
+    const tabToView = tabsAtStart[0]
+    const tabResult = await api
+        .get(`/api/tabs/${tabToView.id}`)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+    const processedTabToView = JSON.parse(JSON.stringify(tabToView))
+    expect(tabResult.body).toEqual(processedTabToView)
+
+})
+
+test('a tab can be deleted', async () => {
+    const tabsAtStart = await helper.tabsInDb()
+    const tabToDelete = tabsAtStart[0]
+
+    await api.delete(`/api/tabs/${tabToDelete.id}`).expect(204)
+    const tabsAtEnd = await helper.tabsInDb()
+
+    expect(tabsAtEnd).toHaveLength(
+        helper.initialTabs.length - 1
+    )
+
+    const contents = tabsAtEnd.map((r: any) => r.title)
+
+    expect(contents).not.toContain(tabToDelete.title)
 })
 
 afterAll(() => {

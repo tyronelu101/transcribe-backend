@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { Tab } from "../types/tab-type"
 const tabRouter = require('express').Router()
 const TabMongoose = require('../models/tab')
 
@@ -9,16 +8,18 @@ tabRouter.get('/', async (request: Request, response: Response) => {
 })
 
 tabRouter.get('/:id', async (request: Request, response: Response, next: NextFunction) => {
-    const tab = await TabMongoose
-        .findBy(request.params.id)
-        .catch((error: Error) => next(error))
-
-    if (tab) {
-        response.json(tab)
+    try {
+        const tab = await TabMongoose
+            .findById(request.params.id)
+        if (tab) {
+            response.json(tab)
+        }
+    } catch (exception) {
+        next(exception)
     }
 })
 
-tabRouter.post('/', async (request: Request, response: Response) => {
+tabRouter.post('/', async (request: Request, response: Response, next: NextFunction) => {
     const body = request.body
     if (!body.title) {
         return response.status(400).json({
@@ -30,8 +31,12 @@ tabRouter.post('/', async (request: Request, response: Response) => {
         ...body
     })
 
-    const savedTab = await tab.save()
-    response.status(201).json(savedTab)
+    try {
+        const savedTab = await tab.save()
+        response.status(201).json(savedTab)
+    } catch (exception) {
+        next(exception)
+    }
 
 })
 
@@ -42,21 +47,24 @@ tabRouter.put('/:id', async (request: Request, response: Response, next: NextFun
         ...body
     }
 
-    const updatedTab = await TabMongoose
-        .findByIdAndUpdate(request.params.id, tab, { new: true })
-        .catch((error: Error) => next(error))
-    if (updatedTab) {
-        response.json(updatedTab)
-
+    try {
+        const updatedTab = await TabMongoose
+            .findByIdAndUpdate(request.params.id, tab, { new: true })
+        if (updatedTab) {
+            response.json(updatedTab)
+        }
+    } catch (exception) {
+        next(error)
     }
 })
 
-tabRouter.delete('/:id', (request: Request, response: Response, next: NextFunction) => {
-    TabMongoose.findByIdAndRemove(request.params.id)
-        .then((tab: Tab) => {
-            response.status(204).end()
-        })
-        .catch((error: Error) => next(error))
+tabRouter.delete('/:id', async (request: Request, response: Response, next: NextFunction) => {
+    try {
+        await TabMongoose.findByIdAndRemove(request.params.id)
+        response.status(204).end()
+    } catch (exception) {
+        next(exception)
+    }
 })
 
 module.exports = tabRouter

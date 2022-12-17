@@ -1,5 +1,4 @@
 import { Document, Schema } from "mongoose"
-import { Tab } from "../types/tab-type"
 const mongoose = require('mongoose')
 
 const tabSchema: Schema = new mongoose.Schema({

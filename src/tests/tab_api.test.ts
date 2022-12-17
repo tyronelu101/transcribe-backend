@@ -62,6 +62,25 @@ test('a valid tab can be added', async () => {
 
 })
 
+test('a tab without title can not be added', async () => {
+    const newTab = {
+        artist: 'New Artist1',
+        arranger: 'New Arranger1',
+        dateCreated: new Date(),
+        dateModified: new Date(),
+        content: []
+    }
+
+    await api
+        .post('/api/tabs')
+        .send(newTab)
+        .expect(400)
+
+    const response = await api.get('/api/tabs')
+
+    expect(response.body).toHaveLength(initialTabs.length)
+})
+
 afterAll(() => {
     mongoose.connection.close()
 })

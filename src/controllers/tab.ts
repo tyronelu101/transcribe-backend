@@ -5,6 +5,7 @@ const UserMongoose = require('../models/user')
 
 tabRouter.get('/', async (request: Request, response: Response) => {
     const tabs = await TabMongoose.find({})
+        .populate('user', { userName: 1, name: 1 })
     response.json(tabs)
 })
 

@@ -36,12 +36,14 @@ tabRouter.post('/', async (request: Request, response: Response, next: NextFunct
     const body = request.body
 
     const token = getTokenFrom(request)
-
-    const decodedToken = jwt.verify(token, process.env.SECRET)
-    if (!decodedToken.id) {
-        return response.status(401).json({
-            error: 'token missing or invalid'
-        })
+    let decodedToken = null
+    if (token) {
+        decodedToken = jwt.verify(token, process.env.SECRET)
+        if (!decodedToken.id) {
+            return response.status(401).json({
+                error: 'token missing or invalid'
+            })
+        }
     }
 
     if (!body.title) {
@@ -50,20 +52,22 @@ tabRouter.post('/', async (request: Request, response: Response, next: NextFunct
         })
     }
 
-    const user = await UserMongoose.findById(decodedToken.id)
+    if (decodedToken) {
+        const user = await UserMongoose.findById(decodedToken.id)
 
-    const tab = new TabMongoose({
-        ...body,
-        user: user._id
-    })
+        const tab = new TabMongoose({
+            ...body,
+            user: user._id
+        })
 
-    try {
-        const savedTab = await tab.save()
-        user.tabs = user.tabs.concat(savedTab._id)
-        await user.save()
-        response.status(201).json(savedTab)
-    } catch (exception) {
-        next(exception)
+        try {
+            const savedTab = await tab.save()
+            user.tabs = user.tabs.concat(savedTab._id)
+            await user.save()
+            response.status(201).json(savedTab)
+        } catch (exception) {
+            next(exception)
+        }
     }
 
 })

@@ -1,4 +1,5 @@
 const TabMongoose = require('../models/tab')
+const UserMongoose = require('../models/user')
 
 const initialTabs = [
     { title: 'Title1', artist: 'Artist1', arranger: 'Arranger1', dateCreated: new Date(), dateModified: new Date(), content: [] },
@@ -26,6 +27,15 @@ const tabsInDb = async () => {
     const tabs = await TabMongoose.find({})
     return tabs.map((tab: any) => tab.toJSON())
 }
+
+const usersInDb = async () => {
+    const users = await UserMongoose.find({})
+    return users.map((u: any) => u.toJSON())
+}
+
 module.exports = {
-    initialTabs, nonExistingId, tabsInDb
+    initialTabs,
+    nonExistingId,
+    tabsInDb,
+    usersInDb
 }

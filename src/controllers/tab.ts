@@ -37,13 +37,15 @@ tabRouter.post('/', async (request: Request, response: Response, next: NextFunct
 
     const token = getTokenFrom(request)
     let decodedToken = null
-    if (token) {
+    try {
         decodedToken = jwt.verify(token, process.env.SECRET)
         if (!decodedToken.id) {
             return response.status(401).json({
                 error: 'token missing or invalid'
             })
         }
+    } catch (exception) {
+        next(exception)
     }
 
     if (!body.title) {
@@ -51,7 +53,7 @@ tabRouter.post('/', async (request: Request, response: Response, next: NextFunct
             error: 'title missing'
         })
     }
-
+    
     if (decodedToken) {
         const user = await UserMongoose.findById(decodedToken.id)
 

@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 const tabRouter = require('express').Router()
 const TabMongoose = require('../models/tab')
+const UserMongoose = require('../models/user')
 
 tabRouter.get('/', async (request: Request, response: Response) => {
     const tabs = await TabMongoose.find({})
@@ -29,12 +30,17 @@ tabRouter.post('/', async (request: Request, response: Response, next: NextFunct
         })
     }
 
+    const user = await UserMongoose.findById(body.userId)
+
     const tab = new TabMongoose({
-        ...body
+        ...body,
+        user: user._id
     })
 
     try {
         const savedTab = await tab.save()
+        user.tabs = user.tabs.concat(savedTab._id)
+        await user.save()
         response.status(201).json(savedTab)
     } catch (exception) {
         next(exception)

@@ -2,6 +2,15 @@ import { NextFunction, Request, Response } from "express";
 const tabRouter = require('express').Router()
 const TabMongoose = require('../models/tab')
 const UserMongoose = require('../models/user')
+const jwt = require('jsonwebtoken')
+
+const getTokenFrom = (request: Request) => {
+    const authorization = request.get('authorization')
+    if (authorization && authorization.toLocaleLowerCase().startsWith('bearer ')) {
+        return authorization.substring(7)
+    }
+    return null
+}
 
 tabRouter.get('/', async (request: Request, response: Response) => {
     const tabs = await TabMongoose.find({})
@@ -25,13 +34,23 @@ tabRouter.get('/:id', async (request: Request, response: Response, next: NextFun
 
 tabRouter.post('/', async (request: Request, response: Response, next: NextFunction) => {
     const body = request.body
+
+    const token = getTokenFrom(request)
+
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+    if (!decodedToken.id) {
+        return response.status(401).json({
+            error: 'token missing or invalid'
+        })
+    }
+
     if (!body.title) {
         return response.status(400).json({
             error: 'title missing'
         })
     }
 
-    const user = await UserMongoose.findById(body.userId)
+    const user = await UserMongoose.findById(decodedToken.id)
 
     const tab = new TabMongoose({
         ...body,

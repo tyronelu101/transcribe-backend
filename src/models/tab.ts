@@ -8,7 +8,11 @@ const tabSchema: Schema = new mongoose.Schema({
     tuning: String,
     dateCreated: Date,
     dateModified: Date,
-    content: []
+    content: [],
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }
 })
 
 tabSchema.set('toJSON', {

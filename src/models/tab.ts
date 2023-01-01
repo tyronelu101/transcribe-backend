@@ -8,6 +8,7 @@ const tabSchema: Schema = new mongoose.Schema({
     tuning: String,
     dateCreated: Date,
     dateModified: Date,
+    status: String,
     content: [],
     user: {
         type: mongoose.Schema.Types.ObjectId,

@@ -8,7 +8,14 @@ const User = require('../models/user')
 usersRouter.get('/', async (request: Request, response: Response) => {
     const users = await User
         .find({})
-        .populate('tabs', { title: 1, artist: 1, arranger: 1 })
+        .populate('tabs')
+    response.json(users)
+})
+
+usersRouter.get('/:username', async (request: Request, response: Response) => {
+    const users = await User
+        .find({userName: request.params.username})
+        .populate('tabs')
     response.json(users)
 })
 
@@ -53,7 +60,7 @@ usersRouter.delete('/', async (request: Request, response: Response) => {
 
     const result = await user.delete()
     console.log(result);
-    
+
     response.status(204).send()
 })
 

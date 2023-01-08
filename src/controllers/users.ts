@@ -37,4 +37,24 @@ usersRouter.post('/', async (request: Request, response: Response) => {
     response.status(201).json(savedUser)
 })
 
+usersRouter.delete('/', async (request: Request, response: Response) => {
+    const { userName, password } = request.body
+
+    const user = await User.findOne({ userName })
+    const passwordCorrect = user === null ?
+        false
+        : await bcrypt.compare(password, user.passwordHash)
+
+    if (!(user && passwordCorrect)) {
+        return response.status(401).json({
+            error: 'invalid username or password'
+        })
+    }
+
+    const result = await user.delete()
+    console.log(result);
+    
+    response.status(204).send()
+})
+
 module.exports = usersRouter

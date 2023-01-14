@@ -61,9 +61,7 @@ usersRouter.delete('/', async (request: Request, response: Response) => {
         })
     }
 
-    const result = await user.delete()
-    console.log(result);
-
+    await user.delete()
     response.status(204).send()
 })
 

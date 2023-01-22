@@ -6,19 +6,14 @@ const usersRouter = require('express').Router()
 const User = require('../models/user')
 
 usersRouter.get('/', async (request: Request, response: Response) => {
-    console.log("Get users");
-
     const users = await User
         .find({})
-        .populate('tabs')
     response.json(users)
 })
 
 usersRouter.get('/:username', async (request: Request, response: Response) => {
-    console.log("Get user");
     const users = await User
         .findOne({ userName: request.params.username })
-        .populate('tabs')
     response.json(users)
 })
 

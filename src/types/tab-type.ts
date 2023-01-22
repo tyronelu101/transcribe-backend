@@ -1,9 +1,11 @@
 export interface Tab {
-    id: String
-    title: String,
-    arranger: String,
-    tuning: String,
+    id: string
+    title: string,
+    arranger: string,
+    tuning: string,
     dateCreated: Date,
     dateModified: Date,
-    content: []
+    content: [],
+    user: string,
+    localId: string
 }

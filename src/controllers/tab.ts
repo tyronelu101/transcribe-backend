@@ -3,6 +3,7 @@ const tabRouter = require('express').Router()
 const TabMongoose = require('../models/tab')
 const UserMongoose = require('../models/user')
 const jwt = require('jsonwebtoken')
+import { Tab } from "../types/tab-type"
 
 const getTokenFrom = (request: Request) => {
     const authorization = request.get('authorization')
@@ -48,30 +49,51 @@ tabRouter.post('/', async (request: Request, response: Response, next: NextFunct
         next(exception)
     }
 
-    if (!body.title) {
-        return response.status(400).json({
-            error: 'title missing'
-        })
-    }
-    
     if (decodedToken) {
         const user = await UserMongoose.findById(decodedToken.id)
+        const insertTabs: any[] = []
+        const updateTabs: Tab[] = []
 
-        const tab = new TabMongoose({
-            ...body,
-            user: user._id
-        })
+        body.forEach((tab: Tab) => {
+            tab.user = user.id
+            if (tab.id) {
+                updateTabs.push(tab)
+            } else {
+                const mongooseTab = new TabMongoose({ ...tab })
+                mongooseTab.localId = tab.localId
+                insertTabs.push(mongooseTab)
+            }
+        });
 
         try {
-            const savedTab = await tab.save()
-            user.tabs = user.tabs.concat(savedTab._id)
-            await user.save()
-            response.status(201).json(savedTab)
+            const insertedTabs = await TabMongoose.create(insertTabs)
+            const updatedTabs = await Promise.all(
+                updateTabs.map((tab: Tab) => TabMongoose.findByIdAndUpdate(tab.id, tab, { new: true }))
+            )
+
+            const insertedTabIds: {
+                remote: string,
+                local: string
+            }[] = []
+            const updatedTabIds: string[] = updatedTabs.map(tab => tab.id)
+
+            insertedTabs.forEach((tab: Tab) => {
+                insertedTabIds.push({
+                    remote: tab.id,
+                    local: tab.localId
+                })
+            })
+
+            const result = {
+                "inserted": insertedTabIds,
+                "updated": updatedTabIds
+            }
+
+            response.status(201).json(result)
         } catch (exception) {
             next(exception)
         }
     }
-
 })
 
 tabRouter.put('/:id', async (request: Request, response: Response, next: NextFunction) => {

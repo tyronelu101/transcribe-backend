@@ -31,7 +31,7 @@ tabRouter.post('/', async (request: AuthRequest, response: Response, next: NextF
     if (userId) {
         const user = await UserMongoose.findById(userId)
 
-        const insertTabs: any[] = []
+        const insertTabs: Tab[] = []
         const updateTabs: Tab[] = []
 
         body.forEach((tab: Tab) => {

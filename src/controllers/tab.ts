@@ -94,6 +94,15 @@ tabRouter.put('/:id', async (request: Request, response: Response, next: NextFun
     }
 })
 
+tabRouter.delete('/', async (request: AuthRequest, response: Response, next: NextFunction) => {
+    try {
+        await TabMongoose.deleteMany({ user: request.userId })
+        response.status(204).end()
+    } catch (exception) {
+        next(exception)
+    }
+})
+
 tabRouter.delete('/:id', async (request: Request, response: Response, next: NextFunction) => {
     try {
         await TabMongoose.findByIdAndRemove(request.params.id)
@@ -102,5 +111,7 @@ tabRouter.delete('/:id', async (request: Request, response: Response, next: Next
         next(exception)
     }
 })
+
+
 
 module.exports = tabRouter

@@ -5,10 +5,8 @@ const UserMongoose = require('../models/user')
 import { Tab } from "../types/tab-type"
 import { AuthRequest } from "../types/request";
 
-
-tabRouter.get('/', async (request: Request, response: Response) => {
-    const tabs = await TabMongoose.find({})
-        .populate('user', { userName: 1, name: 1 })
+tabRouter.get('/', async (request: AuthRequest, response: Response) => {
+    const tabs = await TabMongoose.find({ user: request.userId })
     response.json(tabs)
 })
 

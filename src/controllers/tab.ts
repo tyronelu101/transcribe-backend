@@ -2,16 +2,9 @@ import { NextFunction, Request, Response } from "express";
 const tabRouter = require('express').Router()
 const TabMongoose = require('../models/tab')
 const UserMongoose = require('../models/user')
-const jwt = require('jsonwebtoken')
 import { Tab } from "../types/tab-type"
+import { AuthRequest } from "../types/request";
 
-const getTokenFrom = (request: Request) => {
-    const authorization = request.get('authorization')
-    if (authorization && authorization.toLocaleLowerCase().startsWith('bearer ')) {
-        return authorization.substring(7)
-    }
-    return null
-}
 
 tabRouter.get('/', async (request: Request, response: Response) => {
     const tabs = await TabMongoose.find({})
@@ -33,24 +26,13 @@ tabRouter.get('/:id', async (request: Request, response: Response, next: NextFun
     }
 })
 
-tabRouter.post('/', async (request: Request, response: Response, next: NextFunction) => {
+tabRouter.post('/', async (request: AuthRequest, response: Response, next: NextFunction) => {
     const body = request.body
+    const userId = request.userId
 
-    const token = getTokenFrom(request)
-    let decodedToken = null
-    try {
-        decodedToken = jwt.verify(token, process.env.SECRET)
-        if (!decodedToken.id) {
-            return response.status(401).json({
-                error: 'token missing or invalid'
-            })
-        }
-    } catch (exception) {
-        next(exception)
-    }
+    if (userId) {
+        const user = await UserMongoose.findById(userId)
 
-    if (decodedToken) {
-        const user = await UserMongoose.findById(decodedToken.id)
         const insertTabs: any[] = []
         const updateTabs: Tab[] = []
 

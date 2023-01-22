@@ -1,6 +1,31 @@
 import { NextFunction, Request, Response } from "express";
+import { AuthRequest } from "../types/request";
 
+const jwt = require('jsonwebtoken')
 const logger = require('./logger')
+
+const authorization = (request: AuthRequest, response: Response, next: NextFunction) => {
+    const authorization = request.get('authorization')
+    let token = null
+    if (authorization && authorization.toLocaleLowerCase().startsWith('bearer ')) {
+        token = authorization.substring(7)
+    }
+
+    let decodedToken = null
+    try {
+        decodedToken = jwt.verify(token, process.env.SECRET)
+        if (!decodedToken.id) {
+            return response.status(401).json({
+                error: 'token missing or invalid'
+            })
+        } else {
+            request.userId = decodedToken.id
+            next()
+        }
+    } catch (exception) {
+        next(exception)
+    }
+}
 
 const requestLogger = (request: Request, response: Response, next: NextFunction) => {
     logger.info('Method:', request.method)
@@ -32,5 +57,6 @@ const errorHandler = (error: Error, request: Request, response: Response, next: 
 module.exports = {
     requestLogger,
     unknownEndpoint,
-    errorHandler
+    errorHandler,
+    authorization
 }

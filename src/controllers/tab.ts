@@ -48,7 +48,7 @@ tabRouter.post('/', async (request: AuthRequest, response: Response, next: NextF
         try {
             const insertedTabs = await TabMongoose.create(insertTabs)
             const updatedTabs = await Promise.all(
-                updateTabs.map((tab: Tab) => TabMongoose.findByIdAndUpdate(tab.id, tab, { new: true }))
+                updateTabs.map((tab: Tab) => TabMongoose.findByIdAndUpdate(tab.id, tab, { new: true, upsert: true }))
             )
 
             const insertedTabIds: {

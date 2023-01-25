@@ -13,13 +13,15 @@ const authorization = (request: AuthRequest, response: Response, next: NextFunct
 
     let decodedToken = null
     try {
-        decodedToken = jwt.verify(token, process.env.SECRET)
-        if (!decodedToken.id) {
+        decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_PRIVATE)
+
+        if (!decodedToken.userId && !decodedToken.userName) {
             return response.status(401).json({
                 error: 'token missing or invalid'
             })
         } else {
             request.userId = decodedToken.id
+            request.userName = decodedToken.userName
             next()
         }
     } catch (exception) {
@@ -41,7 +43,6 @@ const unknownEndpoint = (request: Request, response: Response) => {
 
 const errorHandler = (error: Error, request: Request, response: Response, next: NextFunction) => {
     logger.error(error.message)
-    logger.error("HELLO")
     if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id' })
     } else if (error.name === 'ValidationError') {

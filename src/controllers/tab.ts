@@ -6,7 +6,7 @@ import { Tab } from "../types/tab-type"
 import { AuthRequest } from "../types/request";
 
 tabRouter.get('/', async (request: AuthRequest, response: Response) => {
-    const tabs = await TabMongoose.find({ user: request.userId })
+    const tabs = await TabMongoose.find({ userName: request.userName })
     response.json(tabs)
 })
 

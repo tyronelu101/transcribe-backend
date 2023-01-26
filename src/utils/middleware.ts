@@ -20,8 +20,8 @@ const authorization = (request: AuthRequest, response: Response, next: NextFunct
                 error: 'token missing or invalid'
             })
         } else {
-            request.userId = decodedToken.id
-            request.userName = decodedToken.userName
+            request.userId = decodedToken.userId
+            request.userName = decodedToken.userName            
             next()
         }
     } catch (exception) {

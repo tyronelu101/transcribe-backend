@@ -29,7 +29,7 @@ authRouter.post('/login', async (request: Request, response: Response) => {
     const token = jwt.sign(
         userForToken,
         process.env.ACCESS_TOKEN_PRIVATE,
-        { expiresIn: "15s" })
+        { expiresIn: "30m" })
 
     const refreshToken = jwt.sign(
         userForToken,

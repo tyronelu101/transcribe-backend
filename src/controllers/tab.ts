@@ -6,7 +6,7 @@ import { Tab } from "../types/tab-type"
 import { AuthRequest } from "../types/request";
 
 tabRouter.get('/', async (request: AuthRequest, response: Response) => {
-    const tabs = await TabMongoose.find({ userName: request.userName })
+    const tabs = await TabMongoose.find({ userId: request.userId })
     response.json(tabs)
 })
 
@@ -27,6 +27,7 @@ tabRouter.get('/:id', async (request: Request, response: Response, next: NextFun
 tabRouter.post('/', async (request: AuthRequest, response: Response, next: NextFunction) => {
     const body = request.body
     const userId = request.userId
+    console.log("Response is", userId);
 
     if (userId) {
         const user = await UserMongoose.findById(userId)
@@ -69,11 +70,16 @@ tabRouter.post('/', async (request: AuthRequest, response: Response, next: NextF
                 "updated": updatedTabIds
             }
 
+            console.log("Response is", result);
+
             response.status(201).json(result)
         } catch (exception) {
+            console.log("Response is", exception);
             next(exception)
         }
     }
+    response.status(403).json("Invalid user id")
+
 })
 
 tabRouter.put('/:id', async (request: Request, response: Response, next: NextFunction) => {

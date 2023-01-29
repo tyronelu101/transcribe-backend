@@ -27,7 +27,6 @@ tabRouter.get('/:id', async (request: Request, response: Response, next: NextFun
 tabRouter.post('/', async (request: AuthRequest, response: Response, next: NextFunction) => {
     const body = request.body
     const userId = request.userId
-    console.log("Response is", userId);
 
     if (userId) {
         const user = await UserMongoose.findById(userId)
@@ -69,8 +68,6 @@ tabRouter.post('/', async (request: AuthRequest, response: Response, next: NextF
                 "inserted": insertedTabIds,
                 "updated": updatedTabIds
             }
-
-            console.log("Response is", result);
 
             response.status(201).json(result)
         } catch (exception) {
